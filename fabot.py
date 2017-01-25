@@ -12,6 +12,7 @@ To-do:
 import Cookie
 import cookielib
 import mechanize
+import time
 from getpass import getpass
 from bs4 import BeautifulSoup
 cookiejar =cookielib.LWPCookieJar()
@@ -26,18 +27,48 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
+def notifications():
+    print bcolors.WARNING+'Getting notifications'+bcolors.ENDC
+    url = 'https://m.facebook.com/notifications'
+    print bcolors.OKGREEN+'URL: '+url+bcolors.ENDC
+    try:
+        br.open(url)
+        br._factory.is_html = True
+        print bcolors.OKGREEN+'Opening notification: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Opening notification: FAILED'+bcolors.ENDC
+    try:
+        soup = BeautifulSoup(br.response().read())
+        print bcolors.OKGREEN+'Getting data: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
+    check = raw_input()
+    a = soup.find_all('td',{'class': '_55wq _4g34 _3166'})
+    sno = 1
+    for i in a:
+        if (sno%5)==0:
+            print bcolors.WARNING+'Press Enter to continue'+bcolors.ENDC
+            check = raw_input()
+        print str(sno)+' '+i.text
+        sno +=1
+
 def loadMessenger(fid):
-    print bcolors.WARNING+'Fetching Data'+bcolors.ENDC
     url = 'https://m.facebook.com'+str(fid)
-    br.open(url)
-    br._factory.is_html = True
+    print bcolors.OKGREEN+'URL: '+url+bcolors.ENDC
+    try:
+        br.open(url)
+        br._factory.is_html = True
+        print bcolors.OKGREEN+'Loading messages: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Loading messages: FAILED'+bcolors.ENDC
     soup = BeautifulSoup(br.response().read())
-    print bcolors.OKGREEN+'\nSuccessfully Fetched'+bcolors.ENDC
     a = soup.find_all('div',{'class': 'msg'})
     b = a[0].find_all('span')
     c = a[0].find_all('strong',{'class': 'actor'})
     d = soup.find_all('abbr')
     print bcolors.WARNING+bcolors.BOLD+str(c[0].text)+bcolors.ENDC
+    print bcolors.WARNING+bcolors.BOLD+'Showing messages'+bcolors.ENDC
     print '\n\n'
     for i in b:
         print i.text
@@ -48,9 +79,9 @@ def loadMessenger(fid):
     br['body'] = messageBody
     try:
         br.submit()
-        print bcolors.OKGREEN+'Successfully Sended'+bcolors.ENDC
+        print bcolors.OKGREEN+'Sending status: OK'+bcolors.ENDC
     except:
-        print bcolors.FAIL+'FAILED'+bcolors.ENDC
+        print bcolors.FAIL+'Sending status: FAILED'+bcolors.ENDC
 
 def messages():
     print bcolors.OKBLUE+'GETTING MESSAGES'+bcolors.ENDC
@@ -65,7 +96,12 @@ def messages():
     utme = []
 
     url = 'https://m.facebook.com/messages'
-    br.open(url)
+    print bcolors.OKGREEN+'URL: '+url+bcolors.ENDC
+    try:
+        br.open(url)
+        print bcolors.OKGREEN+'Opening messages: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Opening messages: FAILED'+bcolors.ENDC
     soup = BeautifulSoup(br.response().read())
     l = soup.find_all('table',{'class': '_5b6o _55wp _2ycx acw del_area async_del abb'})
     l2 = soup.find_all('table',{'class': '_5b6o _55wp _2ycx aclb del_area async_del abb'})
@@ -110,33 +146,91 @@ def messages():
     if flag == 0:
         print bcolors.FAIL+'You enterd wrong name'+bcolors.ENDC
 
-print bcolors.OKBLUE+bcolors.BOLD+'\n\n\n\t\tFabot'+bcolors.ENDC
-print bcolors.WARNING+'Press Enter to continue ...'+bcolors.ENDC,
-check = raw_input()
-br = mechanize.Browser()
-br.set_cookiejar(cookiejar)
 
+'''
+
+Main function starts here #------------------------------------------------------------------------->
+
+'''
+print bcolors.OKBLUE+bcolors.BOLD+'###################         ##################'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'###################         ######           ####'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'###################         ######             ###'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#######                     ######            ###'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#######                     ######           ###'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#############               ###################'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#############               ######            ####'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#######                     ######             ####'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#######                     ######            ##'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'#######                     ##################'+bcolors.ENDC
+print bcolors.OKBLUE+bcolors.BOLD+'\n\n\tFabot'+bcolors.ENDC
+
+try:
+    br = mechanize.Browser()
+    print bcolors.OKGREEN+'Mechanize Browser: OK'+bcolors.ENDC
+except:
+    print bcolors.FAIL+'Browser Setting: FAILED'+bcolors.ENDC
+    failno = 1
+time.sleep(1)
+try:
+    br.set_cookiejar(cookiejar)
+    print bcolors.OKGREEN+'Browser cookies: OK'+bcolors.ENDC
+except:
+    print bcolors.FAIL+'Browser cookies: FAILED'+bcolors.ENDC
+    failno = 1
+time.sleep(1)
 # Robots is false
 br.set_handle_robots(False)
+print bcolors.OKGREEN+'Robots settings: OK'+bcolors.ENDC
+failno = 0
+try:
+    br.open('https://m.facebook.com/')
+    print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
+except:
+    cou = 0
+    print bcolors.FAIL+'Connection: Not Connected'+bcolors.ENDC
+    while True:
+        print bcolors.WARNING+'Trying again: '+str(cou+1)+'/3'+bcolors.ENDC
+        try:
+            br.open('https://m.facebook.com/')
+            print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
+            break
+        except:
+            cou+=1
+        if cou >= 3:
+            print bcolors.FAIL+'Failed Quitting'+bcolors.ENDC
+            failno = 1
+            break
+if failno == 0:
+    br._factory.is_html = True
+    try:
+        br.select_form(nr = 0)
+        print bcolors.OKGREEN+'Form selected: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Form selected: FAILED'+bcolors.ENDC
+    print bcolors.BOLD + "Email:" + bcolors.ENDC,
+    email = raw_input()
+    br['email'] = email
+    passw = getpass()
+    br['pass'] = passw
+    print bcolors.OKBLUE+'\nSubmitting:'+ bcolors.ENDC,
+    try:
+        br.submit()
+        print bcolors.OKGREEN+'OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'FAILED'+bcolors.ENDC
+    soup = BeautifulSoup(br.response().read())
 
-br.open('https://m.facebook.com/')
-br._factory.is_html = True
-br.select_form(nr = 0)
-print bcolors.BOLD + "Email:" + bcolors.ENDC,
-email = raw_input()
-br['email'] = email
-passw = getpass()
-br['pass'] = passw
-print bcolors.OKBLUE+'\nSubmitting login credentials'+ bcolors.ENDC
-br.submit()
-soup = BeautifulSoup(br.response().read())
-
-if 'login_try_number=' in str(soup):
-    print bcolors.FAIL+'Failed'+bcolors.ENDC
-else:
-    print bcolors.OKGREEN+bcolors.BOLD+'\nSuccessfully Logged in'+bcolors.ENDC
-    check = raw_input('Press Enter to continue')
-    messages()
+    if 'login_try_number=' in str(soup):
+        print bcolors.FAIL+'Log in: Failed'+bcolors.ENDC
+    else:
+        print bcolors.OKGREEN+bcolors.BOLD+'Log in: Accepted'+bcolors.ENDC
+        check = raw_input('Press Enter to continue')
+        print 'Features allowed: \n1. Messages\n2.Notifications\n\nEnter your choice',
+        ge = int(raw_input())
+        if ge == 1:
+            messages()
+        elif ge == 2:
+            notifications()
 
 '''
 l = soup.find_all("h3",{"class": "_52je _52jg _5tg_"})
