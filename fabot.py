@@ -3,20 +3,15 @@ IT IS JUST FOR EDUCATIONAL PURPOSE PROJECT
 
 Fabot - "Facebook experience redefined"
 
+#Wish list
+1. One session and more than 1 login - Status: Not possible
+
 To-do:
 1. Messages
 2. Notifications
 3. Home page
 
 '''
-import Cookie
-import cookielib
-import mechanize
-import time
-from getpass import getpass
-from bs4 import BeautifulSoup
-cookiejar =cookielib.LWPCookieJar()
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -27,6 +22,44 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+try:
+    import Cookie
+    import cookielib
+    import mechanize
+    import time
+    import os
+    from getpass import getpass
+    from bs4 import BeautifulSoup
+    print bcolors.OKGREEN+'Import: OK'+bcolors.ENDC
+except:
+    print bcolors.FAIL+'Import: FAILED'+bcolors.ENDC
+time.sleep(1)
+
+def searchUser():
+    print bcolors.WARNING+'Enter USER id: '+bcolors.ENDC
+    print bcolors.WARNING+'https://m.facebook.com/(this is user id)'+bcolors.ENDC
+    url = raw_input()
+    url = 'https://m.facebook.com/'+url+'/about'
+    print bcolors.OKGREEN+'URL: '+url+bcolors.ENDC
+    try:
+        br.open(url)
+        br._factory.is_html = True
+        print bcolors.OKGREEN+'Opening user profile: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Opening user profile: FAILED'+bcolors.ENDC
+    try:
+        soup = BeautifulSoup(br.response().read())
+        print bcolors.OKGREEN+'Getting data: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
+    name = soup.find_all('strong',{'class': 'profileName'})
+    print bcolors.OKGREEN+'NAME: '+name+bcolors.ENDC
+    birthday = soup.find_all('div',{'class': '_5cds _2lcw _5cdu'})
+    if birthday != []:
+        print bcolors.OKGREEN+str(birthday[0].text)+bcolors.ENDC
+    else:
+        print bcolors.FAIL+'Birthday: NOT AVAILABLE'+bcolors.ENDC
+    
 
 def notifications():
     print bcolors.WARNING+'Getting notifications'+bcolors.ENDC
@@ -43,7 +76,6 @@ def notifications():
         print bcolors.OKGREEN+'Getting data: OK'+bcolors.ENDC
     except:
         print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
-    check = raw_input()
     a = soup.find_all('td',{'class': '_55wq _4g34 _3166'})
     sno = 1
     for i in a:
@@ -146,6 +178,9 @@ def messages():
     if flag == 0:
         print bcolors.FAIL+'You enterd wrong name'+bcolors.ENDC
 
+def delete():
+    print bcolors.FAIL+'Cookies: DELETED'+bcolors.ENDC
+    os.remove('.cookies.txt')
 
 '''
 
@@ -164,73 +199,138 @@ print bcolors.OKBLUE+bcolors.BOLD+'#######                     ######           
 print bcolors.OKBLUE+bcolors.BOLD+'#######                     ##################'+bcolors.ENDC
 print bcolors.OKBLUE+bcolors.BOLD+'\n\n\tFabot'+bcolors.ENDC
 
-try:
-    br = mechanize.Browser()
-    print bcolors.OKGREEN+'Mechanize Browser: OK'+bcolors.ENDC
-except:
-    print bcolors.FAIL+'Browser Setting: FAILED'+bcolors.ENDC
-    failno = 1
-time.sleep(1)
-try:
+if os.path.isfile('./.cookies.txt'):
+    print bcolors.OKGREEN+'Compiled: Successfully'+bcolors.ENDC
+    time.sleep(1)
+    print bcolors.OKGREEN+'Cookies: FOUND'+bcolors.ENDC
+    time.sleep(1)
+    try:
+        br = mechanize.Browser()
+        print bcolors.OKGREEN+'Mechanize Browser: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Browser Setting: FAILED'+bcolors.ENDC
+    time.sleep(1)
+    cookiejar =cookielib.LWPCookieJar()
     br.set_cookiejar(cookiejar)
-    print bcolors.OKGREEN+'Browser cookies: OK'+bcolors.ENDC
-except:
-    print bcolors.FAIL+'Browser cookies: FAILED'+bcolors.ENDC
-    failno = 1
-time.sleep(1)
-# Robots is false
-br.set_handle_robots(False)
-print bcolors.OKGREEN+'Robots settings: OK'+bcolors.ENDC
-failno = 0
-try:
-    br.open('https://m.facebook.com/')
-    print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
-except:
-    cou = 0
-    print bcolors.FAIL+'Connection: Not Connected'+bcolors.ENDC
-    while True:
-        print bcolors.WARNING+'Trying again: '+str(cou+1)+'/3'+bcolors.ENDC
-        try:
-            br.open('https://m.facebook.com/')
-            print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
-            break
-        except:
-            cou+=1
-        if cou >= 3:
-            print bcolors.FAIL+'Failed Quitting'+bcolors.ENDC
-            failno = 1
-            break
-if failno == 0:
-    br._factory.is_html = True
+    cookiejar.load('.cookies.txt', ignore_discard=True, ignore_expires=True)
+    br.set_handle_robots(False)
+    print bcolors.OKGREEN+'Robots settings: OK'+bcolors.ENDC
+    print bcolors.OKGREEN+'\nStatus: ACCESS GRANTED'+bcolors.ENDC
     try:
-        br.select_form(nr = 0)
-        print bcolors.OKGREEN+'Form selected: OK'+bcolors.ENDC
+        br.open('https://m.facebook.com/')
+        print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
     except:
-        print bcolors.FAIL+'Form selected: FAILED'+bcolors.ENDC
-    print bcolors.BOLD + "Email:" + bcolors.ENDC,
-    email = raw_input()
-    br['email'] = email
-    passw = getpass()
-    br['pass'] = passw
-    print bcolors.OKBLUE+'\nSubmitting:'+ bcolors.ENDC,
-    try:
-        br.submit()
-        print bcolors.OKGREEN+'OK'+bcolors.ENDC
-    except:
-        print bcolors.FAIL+'FAILED'+bcolors.ENDC
+        cou = 0
+        print bcolors.FAIL+'Connection: Not Connected'+bcolors.ENDC
+        while True:
+            print bcolors.WARNING+'Trying again: '+str(cou+1)+'/3'+bcolors.ENDC
+            try:
+                br.open('https://m.facebook.com/')
+                print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
+                break
+            except:
+                cou+=1
+            if cou >= 3:
+                print bcolors.FAIL+'Failed Quitting'+bcolors.ENDC
+                failno = 1
+                break
     soup = BeautifulSoup(br.response().read())
+    coname = soup.find_all('a',{'class': '_5jlw _3t21'})
+    for i in coname:
+        print bcolors.OKGREEN+'User: '+str(i.text)+bcolors.ENDC
+        break
 
-    if 'login_try_number=' in str(soup):
-        print bcolors.FAIL+'Log in: Failed'+bcolors.ENDC
-    else:
-        print bcolors.OKGREEN+bcolors.BOLD+'Log in: Accepted'+bcolors.ENDC
-        check = raw_input('Press Enter to continue')
+
+else:
+    cookiejar =cookielib.LWPCookieJar('.cookies.txt')
+    print bcolors.OKGREEN+'Compiled: Successfully'+bcolors.ENDC
+    print bcolors.OKGREEN+'Cookies.txt: NOT FOUND'+bcolors.ENDC
+    time.sleep(1)
+    try:
+        br = mechanize.Browser()
+        print bcolors.OKGREEN+'Mechanize Browser: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Browser Setting: FAILED'+bcolors.ENDC
+        failno = 1
+    time.sleep(1)
+    try:
+        br.set_cookiejar(cookiejar)
+        print bcolors.OKGREEN+'Browser cookies: OK'+bcolors.ENDC
+    except:
+        print bcolors.FAIL+'Browser cookies: FAILED'+bcolors.ENDC
+        failno = 1
+    time.sleep(1)
+    # Robots is false
+    br.set_handle_robots(False)
+    print bcolors.OKGREEN+'Robots settings: OK'+bcolors.ENDC
+    failno = 0
+    try:
+        br.open('https://m.facebook.com/')
+        print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
+    except:
+        cou = 0
+        print bcolors.FAIL+'Connection: Not Connected'+bcolors.ENDC
+        while True:
+            print bcolors.WARNING+'Trying again: '+str(cou+1)+'/3'+bcolors.ENDC
+            try:
+                br.open('https://m.facebook.com/')
+                print bcolors.OKGREEN+'Connection: OK'+bcolors.ENDC
+                break
+            except:
+                cou+=1
+            if cou >= 3:
+                print bcolors.FAIL+'Failed Quitting'+bcolors.ENDC
+                failno = 1
+                break
+    if failno == 0:
+        br._factory.is_html = True
+        try:
+            br.select_form(nr = 0)
+            print bcolors.OKGREEN+'Form selected: OK'+bcolors.ENDC
+        except:
+            print bcolors.FAIL+'Form selected: FAILED'+bcolors.ENDC
+        print bcolors.BOLD + "Email:" + bcolors.ENDC,
+        email = raw_input()
+        br['email'] = email
+        passw = getpass()
+        print bcolors.OKBLUE+'\nSubmitting:'+ bcolors.ENDC,
+        br['pass'] = passw
+        try:
+            br.submit()
+            print bcolors.OKGREEN+'OK'+bcolors.ENDC
+        except:
+            cou = 0
+            print bcolors.FAIL+'FAILED'+bcolors.ENDC
+            while True:
+                print bcolors.WARNING+'Trying again: '+str(cou+1)+'/3'+bcolors.ENDC
+                try:
+                    br.submit()
+                    print bcolors.OKGREEN+'OK'+bcolors.ENDC
+                except:
+                    cou += 1
+                if cou>= 3:
+                    print bcolors.FAIL+'Failed Quitting'+bcolors.ENDC
+                    failno = 1
+                    break
+
+        cookiejar.save()
+        soup = BeautifulSoup(br.response().read())
+
+if 'login_try_number=' in str(soup):
+    print bcolors.FAIL+'Log in: Failed'+bcolors.ENDC
+else:
+    print bcolors.OKGREEN+bcolors.BOLD+'Log in: Accepted'+bcolors.ENDC
+    check = raw_input('Press Enter to continue')
+    while True:
         print 'Features allowed: \n1. Messages\n2.Notifications\n\nEnter your choice',
         ge = int(raw_input())
         if ge == 1:
             messages()
         elif ge == 2:
             notifications()
+        elif gr == 'quit':
+            print 'Thanks for using'
+            break
 
 '''
 l = soup.find_all("h3",{"class": "_52je _52jg _5tg_"})
