@@ -35,6 +35,12 @@ except:
     print bcolors.FAIL+'Import: FAILED'+bcolors.ENDC
 time.sleep(1)
 
+def fetchdata(data,soup):
+    name = soup.find_all('div',{'title': data})
+    if name == []:
+        print bcolors.FAIL+data.upper()+': NOT FOUND'+bcolors.ENDC
+    else:
+        print bcolors.OKGREEN+data+': '+str(name[0].text[len(data):])+bcolors.ENDC
 def searchUser():
     print bcolors.WARNING+'Enter USER id: '+bcolors.ENDC
     print bcolors.WARNING+'https://m.facebook.com/(this is user id)'+bcolors.ENDC
@@ -53,12 +59,20 @@ def searchUser():
     except:
         print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
     name = soup.find_all('strong',{'class': 'profileName'})
-    print bcolors.OKGREEN+'NAME: '+name+bcolors.ENDC
-    birthday = soup.find_all('div',{'class': '_5cds _2lcw _5cdu'})
-    if birthday != []:
-        print bcolors.OKGREEN+str(birthday[0].text)+bcolors.ENDC
+    print bcolors.OKGREEN+'NAME: '+str(name)+bcolors.ENDC
+    fetchdata('Gender',soup)
+    fetchdata('Languages',soup)
+    fetchdata('Mobile',soup)
+    fetchdata('Facebook',soup)
+    fetchdata('Websites',soup)
+    fetchdata('Email',soup)
+    fetchdata('Current City',soup)
+    fetchdata('Home Town',soup)
+    relationship = soup.find_all('div',{'id': 'relationship'})
+    if name == []:
+        print bcolors.FAIL+relationship+'Relationship: NOT FOUND'+bcolors.ENDC
     else:
-        print bcolors.FAIL+'Birthday: NOT AVAILABLE'+bcolors.ENDC
+        print bcolors.OKGREEN+'Relationship: '+str(relationship[0].text[len(data):])+bcolors.ENDC
     
 
 def notifications():
@@ -323,14 +337,18 @@ else:
     check = raw_input('Press Enter to continue')
     while True:
         print 'Features allowed: \n1. Messages\n2.Notifications\n\nEnter your choice',
-        ge = int(raw_input())
-        if ge == 1:
+        ge = raw_input()
+        if ge == '1':
             messages()
-        elif ge == 2:
+        elif ge == '2':
             notifications()
-        elif gr == 'quit':
+        elif ge == 'quit':
             print 'Thanks for using'
             break
+        elif ge == 'delete':
+            delete()
+        elif ge == '3':
+            searchUser() 
 
 '''
 l = soup.find_all("h3",{"class": "_52je _52jg _5tg_"})
