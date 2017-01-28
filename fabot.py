@@ -59,7 +59,7 @@ def searchUser():
     except:
         print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
     name = soup.find_all('title')
-    print bcolors.OKGREEN+'NAME: '+str(name)+bcolors.ENDC
+    print bcolors.OKGREEN+'\n\nNAME: '+str(name[0].text)+bcolors.ENDC
     fetchdata('Gender',soup)
     fetchdata('Languages',soup)
     fetchdata('Mobile',soup)
@@ -75,9 +75,9 @@ def searchUser():
 
     relationship = soup.find_all('div',{'id': 'relationship'})
     if relationship == []:
-        print bcolors.FAIL+relationship+'Relationship: NOT FOUND'+bcolors.ENDC
+        print bcolors.FAIL+'Relationship: NOT FOUND'+bcolors.ENDC
     else:
-        print bcolors.OKGREEN+'Relationship: '+str(relationship[0].text[len(data):])+bcolors.ENDC
+        print bcolors.OKGREEN+'Relationship: '+str(relationship[0].text[len(relationship):])+bcolors.ENDC
     family = soup.find_all('div',{'id': 'family'})
     if family == []:
         print bcolors.FAIL+relationship+'Family: NOT FOUND'+bcolors.ENDC
@@ -100,14 +100,15 @@ def notifications():
         print bcolors.OKGREEN+'Getting data: OK'+bcolors.ENDC
     except:
         print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
-    a = soup.find_all('td',{'class': '_55wq _4g34 _3166'})
-    sno = 1
-    for i in a:
-        if (sno%5)==0:
-            print bcolors.WARNING+'Press Enter to continue'+bcolors.ENDC
-            check = raw_input()
-        print str(sno)+' '+i.text
-        sno +=1
+    a = soup.find_all('div',{'id': 'notifications_list'})
+    b = a[0].find_all('div')
+    #sno = 1
+    for i in b:
+        #if (sno%5)==0:
+        #print bcolors.WARNING+'Press Enter to continue'+bcolors.ENDC
+        print i.text
+        #print str(sno)+' '+i.text
+        #sno +=1
 
 def loadMessenger(fid):
     url = 'https://m.facebook.com'+str(fid)
@@ -120,15 +121,15 @@ def loadMessenger(fid):
         print bcolors.FAIL+'Loading messages: FAILED'+bcolors.ENDC
     soup = BeautifulSoup(br.response().read())
     a = soup.find_all('div',{'class': 'msg'})
-    b = a[0].find_all('span')
-    c = a[0].find_all('strong',{'class': 'actor'})
-    d = soup.find_all('abbr')
-    print bcolors.WARNING+bcolors.BOLD+str(c[0].text)+bcolors.ENDC
+    try:                                            # Test to fix bug #1
+        b = a[0].find_all('span')
+    except:
+        a = soup.find_all('div',{'id': 'messageGroup'})
+        b = a[0].find_all('span')
     print bcolors.WARNING+bcolors.BOLD+'Showing messages'+bcolors.ENDC
     print '\n\n'
     for i in b:
         print i.text
-    print '\n'+str(d[0].text)
     print '\nEnter your text to send message'
     br.select_form(nr = 1)
     messageBody = raw_input('>>>')
@@ -141,64 +142,34 @@ def loadMessenger(fid):
 
 def messages():
     print bcolors.OKBLUE+'GETTING MESSAGES'+bcolors.ENDC
-    name = []
-    furl = []
-    msg = []
-    tme = []
-    #----------------------------
-    uname = []
-    ufurl = []
-    umsg = []
-    utme = []
-
     url = 'https://m.facebook.com/messages'
     print bcolors.OKGREEN+'URL: '+url+bcolors.ENDC
+
     try:
         br.open(url)
         print bcolors.OKGREEN+'Opening messages: OK'+bcolors.ENDC
     except:
         print bcolors.FAIL+'Opening messages: FAILED'+bcolors.ENDC
+    
+    surl = []
+    sname = []
+
     soup = BeautifulSoup(br.response().read())
-    l = soup.find_all('table',{'class': '_5b6o _55wp _2ycx acw del_area async_del abb'})
-    l2 = soup.find_all('table',{'class': '_5b6o _55wp _2ycx aclb del_area async_del abb'})
-    for i in l2:
-        uname.append(i.find_all('a')[0].text)
-        ufurl.append(i.find_all('a')[0]['href'])
-        umsg.append(i.find_all('span')[0].text)
-        utme.append(i.find_all('abbr')[0].text)
+    l = soup.find_all('a')
     for i in l:
-        name.append(i.find_all('a')[0].text)
-        furl.append(i.find_all('a')[0]['href'])
-        msg.append(i.find_all('span')[0].text)
-        tme.append(i.find_all('abbr')[0].text)
-
-    print bcolors.WARNING+'Un-Read: '+str(len(l2))+bcolors.ENDC
-    for i in xrange(len(l2)):
-        print str(i+1)+' '+uname[i]
-        print 'Last message recieved/sent: '+umsg[i]
-        print utme[i]
-
-    print '\n\n'
-    print bcolors.OKGREEN+'Read: '+str(len(l))+bcolors.ENDC
-    for i in xrange(len(l)):
-        print str(i+1)+' '+name[i]
-        print 'Message: '+msg[i]
-        print tme[i]
+        if '/messages/read/' in str(i['href']):
+            print i.text
+            surl.append(str(i['href']))
+            sname.append(i.text)
 
     print 'To whom you want to send message: '
     search_name = raw_input('Name: ')
     flag = 0
-    for i in xrange(len(name)):
-        if search_name in name[i]:
-            loadMessenger(furl[i])
+    for i in xrange(len(surl)):
+        if search_name in sname[i]:
+            loadMessenger(surl[i])
             flag = 1
             break
-    if flag == 0:
-        for i in xrange(len(uname)):
-            if search_name in uname[i]:
-                loadMessenger(ufurl[i])
-                flag = 1
-                break
     if flag == 0:
         print bcolors.FAIL+'You enterd wrong name'+bcolors.ENDC
 
