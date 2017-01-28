@@ -58,7 +58,7 @@ def searchUser():
         print bcolors.OKGREEN+'Getting data: OK'+bcolors.ENDC
     except:
         print bcolors.FAIL+'Getting data: FAILED'+bcolors.ENDC
-    name = soup.find_all('strong',{'class': 'profileName'})
+    name = soup.find_all('title')
     print bcolors.OKGREEN+'NAME: '+str(name)+bcolors.ENDC
     fetchdata('Gender',soup)
     fetchdata('Languages',soup)
@@ -68,11 +68,21 @@ def searchUser():
     fetchdata('Email',soup)
     fetchdata('Current City',soup)
     fetchdata('Home Town',soup)
+    fetchdata('Interested in',soup)
+    fetchdata('Religious views',soup)
+    fetchdata('Political Views',soup)
+    fetchdata('Social links',soup)
+
     relationship = soup.find_all('div',{'id': 'relationship'})
-    if name == []:
+    if relationship == []:
         print bcolors.FAIL+relationship+'Relationship: NOT FOUND'+bcolors.ENDC
     else:
         print bcolors.OKGREEN+'Relationship: '+str(relationship[0].text[len(data):])+bcolors.ENDC
+    family = soup.find_all('div',{'id': 'family'})
+    if family == []:
+        print bcolors.FAIL+relationship+'Family: NOT FOUND'+bcolors.ENDC
+    else:
+        print bcolors.OKGREEN+'Family: '+str(family[0].text[len(data):])+bcolors.ENDC
     
 
 def notifications():
